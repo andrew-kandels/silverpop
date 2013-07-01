@@ -47,7 +47,11 @@ class Sftp implements FactoryInterface
         $config = isset($config['adapter']['parameters'])
             ? $config['adapter']['parameters']
             : array();
-        
+
+        if (!extension_loaded('ssh2')) {
+            die('Sftp adapter requires the PHP ssh2 extension.');
+        }
+
         return new SftpAdapter(
             $config
         );

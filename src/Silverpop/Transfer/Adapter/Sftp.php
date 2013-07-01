@@ -20,6 +20,7 @@
 namespace Silverpop\Transfer\Adapter;
 
 use RuntimeException;
+use Contain\Entity\Property\Type;
 use Contain\Entity\EntityInterface;
 
 /**
@@ -150,7 +151,15 @@ class Sftp extends AbstractAdapter
 
         $export = array();
         foreach ($this->properties as $property) {
-            $export[] = $entity->property($property)->getExport() ?: '';
+            $type = $entity->type($property);
+
+            if ($type instanceof Type\DateType || $type instanceof Type\DateTimeType || $type instanceof Type\MongoDateType) {
+                $export[] = date('m/d/Y', strtotime($entity->property($property)->getExport()));
+            } elseif ($type instanceof Type\BooleanType) {
+                $export[] = $entity->property($property)->getValue() ? '1' : '0';
+            } else {
+                $export[] = $entity->property($property)->getExport();
+            }
         }
 
         fprintf($this->fp, "%s\n", implode("\t", $export));
@@ -245,7 +254,7 @@ class Sftp extends AbstractAdapter
         fclose($input);
         fclose($output);
 
-        //unlink($this->file);
+        unlink($this->file);
 
         return $this;
     }
@@ -318,7 +327,7 @@ class Sftp extends AbstractAdapter
 
         $response = '';
 
-        while ($buffer = fread($stream, $this->getBufferSize())) {
+        while ($buffer = fread($stream, $this->bufferSize)) {
             $response .= $buffer;
         }
 

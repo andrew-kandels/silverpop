@@ -20,6 +20,7 @@
 namespace Silverpop\Transfer\Adapter;
 
 use InvalidArgumentException;
+use RuntimeException;
 use Silverpop\Service\Silverpop as SilverpopService;
 use Contain\Entity\Definition\AbstractDefinition;
 

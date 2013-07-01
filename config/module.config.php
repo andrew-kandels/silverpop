@@ -1,6 +1,7 @@
 <?php
 return array(
     'silverpop' => array(
+        /*
         'api' => array(
             'uri' => 'http://api5.silverpop.com/XMLAPI',
             'user' => '',
@@ -21,6 +22,7 @@ return array(
                 'pass' => '',
             ),
         ),
+        */
     ),
     'service_manager' => array(
         'factories' => array(

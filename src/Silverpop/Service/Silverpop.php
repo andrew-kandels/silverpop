@@ -52,7 +52,7 @@ class Silverpop
 
     /**
      * Silverpop data types
-     * 
+     *
      * @var integer
      */
     const TYPE_STRING = 0;
@@ -346,7 +346,7 @@ class Silverpop
     }
 
     /**
-     * Converts a Contain property's data type to a Silverpop data 
+     * Converts a Contain property's data type to a Silverpop data
      * type id.
      *
      * @param   Contain\Entity\Property\Type\TypeInterface
@@ -497,18 +497,12 @@ class Silverpop
     }
 
     /**
-     * Generates an XML request for the ImportList API in the 
-     * Silverpop API.
+     * Generates an XML map file for the importList() method.
      *
      * @param   Silverpop\Transfer\Adapter\AdapterInterface
-     * @param   integer                                     Database id (see: findDatabaseByListType)
-     * @param   Contain\Entity\Definition\AbstractDefinition
-     * @param   string                                      Action (see: ACTION_* class constants)
-     * @param   integer                                     List Type (see LIST_* class constants)
-     * @return  integer                                     Job ID from Silverpop (used for tracking)
-     * @see     ImportList (Silverpop XML API)
+     * @return  string
      */
-    public function importList(AdapterInterface $transferAdapter)
+    public function generalImportListXmlMap(AdapterInterface $transferAdapter)
     {
         if (!$properties = $transferAdapter->getProperties()) {
             throw new InvalidArgumentException('$transferAdapter does not have any exposed properties '
@@ -559,18 +553,32 @@ class Silverpop
             }
         }
 
-        $this->login(); // requires login
-
-        // upload the contacts to Silverpop
-        $transferAdapter->flush();
-
-        // uploads the map XML file to Silverpop (used to define/map fields)
-        $transferAdapter->setMap($xml = $this->getViewRenderer()->render('import-list', array(
+        return $this->getViewRenderer()->render('import-list', array(
             'fields'     => $fields,
             'action'     => $transferAdapter->getAction(),
             'listType'   => $transferAdapter->getListType(),
             'databaseId' => $transferAdapter->getDatabaseId(),
-        )));
+        ));
+    }
+
+    /**
+     * Generates an XML request for the ImportList API in the
+     * Silverpop API.
+     *
+     * @param   Silverpop\Transfer\Adapter\AdapterInterface
+     * @see     ImportList (Silverpop XML API)
+     */
+    public function importList(AdapterInterface $transferAdapter)
+    {
+        $this->login(); // requires login
+
+        $xml = $this->generalImportListXmlMap($transferAdapter);
+
+        // uploads the map XML file to Silverpop (used to define/map fields)
+        $transferAdapter->setMap($xml);
+
+        // upload the contacts to Silverpop
+        $transferAdapter->flush();
 
         // process the uploaded files
         // @todo tweak this if other adapters are introduced
@@ -594,6 +602,8 @@ class Silverpop
      */
     public function getJobStatus($jobId)
     {
+        $this->login(); // requires login
+
         $response = $this->sendXmlRequest(
             $this->generateRequestUri(),
             $this->generateXmlRequest('GetJobStatus', array(
@@ -616,7 +626,8 @@ class Silverpop
         if ($result['status'] == 'ERROR' && !empty($result['parameters']['ERROR_FILE_NAME'])) {
             try {
                 $adapter = new Sftp($this->config['adapter']['parameters']);
-                $result['errors'] = $adapter->setRemoteFile('download/' . $result['parameters']['ERROR_FILE_NAME']);
+                $adapter->setRemoteFile('/download/' . $result['parameters']['ERROR_FILE_NAME']);
+                $result['errors'] = $adapter->read();
             } catch (Exception $e) {
                 printf("WARNING: Failed to download '%s' from Silverpop\n",
                     $result['parameters']['ERROR_FILE_NAME']
@@ -626,7 +637,8 @@ class Silverpop
         } elseif ($result['status'] == 'COMPLETE' && !empty($result['parameters']['RESULTS_FILE_NAME'])) {
             try {
                 $adapter = new Sftp($this->config['adapter']['parameters']);
-                $result['messages'] = $adapter->setRemoteFile('download/' . $result['parameters']['RESULTS_FILE_NAME']);
+                $adapter->setRemoteFile('/download/' . $result['parameters']['RESULTS_FILE_NAME']);
+                $result['messages'] = $adapter->read();
             } catch (Exception $e) {
                 printf("WARNING: Failed to download '%s' from Silverpop\n",
                     $result['parameters']['RESULTS_FILE_NAME']
@@ -1076,14 +1088,14 @@ class Silverpop
      *
      * @param   string      $startDate      starting date of update - m/d/y form
      * @param   string      $endDate        ending date of update - m/d/y form
-     * @return  xml response            xml response from API call 
+     * @return  xml response            xml response from API call
      ..
     public function exportRecipientData($startDate, $endDate)
     {
 
         $response = $this->makeRequest('RawRecipientDataExport', array(
             'EVENT_DATE_START' => $startDate,
-            'EVENT_DATE_END' => $endDate, 
+            'EVENT_DATE_END' => $endDate,
             'EXPORT_FORMAT' => 0,
             //'EMAIL' => 'bi@caringbridge.org',
             ),
@@ -1118,14 +1130,14 @@ class Silverpop
     {
         do_log('Fetching metric data from SilverPop');
         $response = $this->exportRecipientData($startDate, $endDate);
-        
+
         $jobId = $response->MAILING->JOB_ID;
         $fileName = $response->MAILING->FILE_PATH;
 
         $this->trackJobStatus($jobId);
 
         $localFile = $this->downloadFile($fileName);
-      
+
         okay();
 
         return ($localFile);
@@ -1136,13 +1148,13 @@ class Silverpop
     /**
      * Gets the entire list of mailings from SilverPop
      *
-     * @return  response            array with mailing information 
+     * @return  response            array with mailing information
      ..
     public function getSentMailings(){
 
         $response = $this->makeRequest('GetSentMailingsForOrg', array(
-            'DATE_START' => date("01/01/2012 00:00:00"), 
-            'DATE_END' => date("m/d/Y " . "23:59:59"), 
+            'DATE_START' => date("01/01/2012 00:00:00"),
+            'DATE_END' => date("m/d/Y " . "23:59:59"),
             )
         );
 
