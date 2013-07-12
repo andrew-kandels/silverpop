@@ -1,0 +1,49 @@
+{
+    "name": "akandels/silverpop",
+    "description": "Zend Framework 2 module for interacting with the Silverpop email marketing system's API.",
+    "type": "library",
+    "keywords": [
+        "zf2","silverpop","email"
+    ],
+    "homepage": "http://contain-project.org/silverpop",
+    "license": "BSD",
+    "authors": [
+        {
+            "name": "Andrew Kandels",
+            "email": "akandels@gmail.com",
+            "role": "lead"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/andrew-kandels/silverpop/issues",
+        "irc": "irc://irc.freenode.net/contain"
+    },
+    "require": {
+        "php": ">=5.3.3",
+        "zendframework/zendframework": ">=2.0.0",
+        "akandels/contain": "dev-master"
+    },
+    "require-dev": {
+        "phpunit/phpunit": ">=3.7.7",
+        "phpunit/php-file-iterator": ">=1.3.3",
+        "phpunit/php-text-template": ">=1.1.3",
+        "phpunit/php-code-coverage": ">=1.2.3",
+        "phpunit/php-timer": ">=1.0.4",
+        "phpunit/phpunit-mock-objects": ">=1.2.1",
+        "phpunit/php-token-stream": ">=1.1.5"
+    },
+    "suggest": {
+        "symfony/yaml": ">=2.1.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "Silverpop": "src/"
+        },
+        "classmap": [
+            "./"
+        ]
+    },
+    "config": {
+        "bin-dir": "scripts"
+    }
+}
