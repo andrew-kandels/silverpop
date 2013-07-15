@@ -1,0 +1,42 @@
+<LIST_IMPORT>
+    <LIST_INFO>
+        <ACTION><?php echo $action; ?></ACTION>
+        <LIST_TYPE><?php echo $listType; ?></LIST_TYPE>
+        <LIST_ID><?php echo $this->databaseId; ?></LIST_ID>
+        <LIST_VISIBILITY>1</LIST_VISIBILITY>
+        <FILE_TYPE>1</FILE_TYPE>
+        <HASHEADERS>false</HASHEADERS>
+    </LIST_INFO>
+    <COLUMNS>
+<?php foreach ($fields as $name => $opts): ?>
+        <COLUMN>
+            <NAME><?php echo $opts['name']; ?></NAME>
+            <TYPE><?php echo $opts['type']; ?></TYPE>
+<?php if ($opts['required']): ?>
+            <IS_REQUIRED>True</IS_REQUIRED>
+<?php endif; ?>
+<?php if ($opts['key']): ?>
+            <KEY_COLUMN>True</KEY_COLUMN>
+<?php endif; ?>
+<?php if (isset($opts['value_options'])): ?>
+            <SELECTION_VALUES>
+<?php foreach ($opts['value_options'] as $option): ?>
+                <VALUE><?php echo $option; ?></VALUE>
+<?php endforeach; ?>
+            </SELECTION_VALUES>
+<?php endif; ?>
+        </COLUMN>
+<?php endforeach; ?>
+    </COLUMNS>
+<MAPPING>
+<?php 
+$index = 0; 
+foreach ($fields as $name => $opts): ?>
+    <COLUMN>
+        <INDEX><?php echo ++$index; ?></INDEX>
+        <NAME><?php echo $opts['name']; ?></NAME>
+        <INCLUDE>True</INCLUDE>
+    </COLUMN>
+<?php endforeach; ?>
+</MAPPING>
+</LIST_IMPORT>

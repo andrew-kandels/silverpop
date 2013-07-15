@@ -1,0 +1,29 @@
+<?php 
+// don't break short tags in PHP, echo the element instead
+echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'; 
+?>
+<XTMAILING>
+    <CAMPAIGN_ID><?php echo $email->getSilverpopId(); ?></CAMPAIGN_ID>
+    <TRANSACTION_ID><?php echo $transactionId; ?></TRANSACTION_ID>
+    <SHOW_ALL_SEND_DETAIL>false</SHOW_ALL_SEND_DETAIL>
+    <SEND_AS_BATCH>false</SEND_AS_BATCH>
+    <NO_RETRY_ON_FAILURE>false</NO_RETRY_ON_FAILURE>
+    <SAVE_COLUMNS>
+<?php foreach ($email->getSilverpopFields() as $key => $value): ?>
+        <COLUMN_NAME><?php echo $key; ?></COLUMN_NAME>
+<?php endforeach; ?>
+    </SAVE_COLUMNS>
+    <RECIPIENT>
+        <EMAIL><?php echo $email->getRecipientEmail()->getAddress(); ?></EMAIL>
+        <BODY_TYPE><?php echo strtoupper($email->getType()); // HTML, TEXT ?></BODY_TYPE>
+<?php
+// Custom fields:
+?>
+<?php foreach ($email->getSilverpopFields() as $key => $value): ?>
+        <PERSONALIZATION>
+            <TAG_NAME><?php echo $key; ?></TAG_NAME>
+            <VALUE><![CDATA[<?php echo $value; ?>]]></VALUE>
+        </PERSONALIZATION>
+<?php endforeach; ?>
+    </RECIPIENT>
+</XTMAILING>
