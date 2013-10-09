@@ -154,9 +154,17 @@ class Sftp extends AbstractAdapter
             $type = $entity->type($property);
 
             if ($type instanceof Type\DateType || $type instanceof Type\DateTimeType || $type instanceof Type\MongoDateType) {
-                $export[] = date('m/d/Y', strtotime($entity->property($property)->getExport()));
+                $timestamp = strtotime($entity->property($property)->getExport());
+
+                if ($timestamp) {
+                    $export[] = date('m/d/Y', $timestamp);
+                } else {
+                    $export[] = '';
+                }
+
             } elseif ($type instanceof Type\BooleanType) {
                 $export[] = $entity->property($property)->getValue() ? '1' : '0';
+
             } else {
                 $export[] = $entity->property($property)->getExport();
             }
