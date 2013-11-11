@@ -142,7 +142,7 @@ class Sftp extends AbstractAdapter
     public function write(EntityInterface $entity)
     {
         if (!$this->properties) {
-            $this->properties = array_keys($entity->export());
+            $this->properties = $entity->properties(true);
         }
 
         if (!$this->fp) {
